@@ -7,6 +7,9 @@ cap = cv2.VideoCapture(0)
 
 
 def KMeansSeg(img, K=2):
+    '''
+
+    '''
     vectorized = img.reshape((-1, 3))
     vectorized = np.float32(vectorized)
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
@@ -20,6 +23,14 @@ def KMeansSeg(img, K=2):
 
 
 def rectangle(img):
+    '''
+        Recognize a rectangle from a BGR image
+        Args:
+            img(ndarray): BGR image
+        Returns:
+            out(ndarray): BGR image of the rectangle recognized
+            img(ndarray): the parameter image itself
+    '''
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     edged = cv2.Canny(gray, 50, 100)
     cnts = cv2.findContours(edged.copy(), cv2.RETR_TREE,
@@ -38,8 +49,12 @@ def rectangle(img):
             screenCnt = approx
             break
     if screenCnt is not None:
-        img_cnt = cv2.drawContours(img, [screenCnt], 0, (0, 255, 0), 3)
-        return img_cnt
+        mask = cv2.drawContours(img, [screenCnt], 0, 's', -1)
+        # Extract out the object and place into output image
+        out = np.zeros_like(img)
+        # TODO: filter only the rectangle where the test paper is in
+        out[mask == 's'] = img[mask == 's']
+        return out
     else:
         return img
 
@@ -48,7 +63,7 @@ while(True):
     # Capture frame-by-frame
     ret, frame = cap.read()
 
-    frame = KMeansSeg(frame)
+    frame = rectangle(frame)
     cv2.imshow('frame', frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break

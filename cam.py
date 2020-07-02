@@ -10,8 +10,25 @@ while(True):
     # Capture frame-by-frame
     ret, frame = cap.read()
 
-    contour_img, warped_img = rectangle(frame)
-    cv2.imshow('qrcode', warped_img)
+    qrdecoder = QRdecoder()
+    # font
+    font = cv2.FONT_HERSHEY_SIMPLEX
+
+    # org
+    org = (50, 50)
+
+    # fontScale
+    fontScale = 1
+
+    # Blue color in BGR
+    color = (0, 255, 0)
+
+    # Line thickness of 2 px
+    thickness = 2
+    qr_img, center, data = qrdecoder.detect(frame)
+    image = cv2.putText(qr_img, f'{center}', org, font,
+                        fontScale, color, thickness, cv2.LINE_AA)
+    cv2.imshow('qrcode center', image)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 

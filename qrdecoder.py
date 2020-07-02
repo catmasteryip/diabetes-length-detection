@@ -44,12 +44,12 @@ class QRdecoder():
         # Detect and decode the qrcode
         data, bbox, _ = self.qrDecoder.detectAndDecode(img)
         if len(data) > 0:
-            print("Decoded Data : {}".format(data))
+            # print("Decoded Data : {}".format(data))
             bbox = bbox.reshape(-1, 2)
-            bbox = np.uint8(bbox)
-            for i, pt in enumerate(bbox):
-                qr_img = cv2.line(img, tuple(pt), tuple(
-                    bbox[i-1]), (255, 0, 0), 5)
+            n = len(bbox)
+            for j in range(n):
+                qr_img = cv2.line(img, tuple(bbox[j]), tuple(
+                    bbox[(j+1) % n]), (255, 0, 0), 3)
             center = self.centroidnp(bbox)
             qr_img = cv2.circle(qr_img, center, 1, (0, 255, 0), 5)
             return qr_img, center, data

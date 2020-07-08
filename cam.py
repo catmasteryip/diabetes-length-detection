@@ -1,34 +1,36 @@
 import numpy as np
 import cv2
-from qrdecoder import QRdecoder
-from rectangle import rectangle
-from kmeans import KMeansSeg
+from aruco import ArUco
+from warping import warping
+from segmentation import segmentation
 
 cap = cv2.VideoCapture(0)
+aruco = ArUco()
 
 while(True):
     # Capture frame-by-frame
     ret, frame = cap.read()
+    black = np.full(frame.shape, 0.)
 
-    qrdecoder = QRdecoder()
-    # font
-    font = cv2.FONT_HERSHEY_SIMPLEX
+    rectangle, ids = aruco.detect(frame)
+    cnt_img = frame
+    warped = None
+    patch = None
+    if rectangle is not None:
+        cnt_img = cv2.drawContours(frame.copy(), rectangle, -1, (0, 255, 0), 3)
 
-    # org
-    org = (50, 50)
+        warped = warping(frame, rectangle)
 
-    # fontScale
-    fontScale = 1
+    if warped is not None:
+        cnt = segmentation(warped)
+        patch = cv2.drawContours(warped, cnt, -1, (0, 255, 0), 2)
+    else:
+        warped = black
+        patch = black
+    cv2.imshow('aruco', cnt_img)
+    cv2.imshow('warped', warped)
+    cv2.imshow('patch', patch)
 
-    # Blue color in BGR
-    color = (0, 255, 0)
-
-    # Line thickness of 2 px
-    thickness = 2
-    qr_img, center, data = qrdecoder.detect(frame)
-    image = cv2.putText(qr_img, f'{center}', org, font,
-                        fontScale, color, thickness, cv2.LINE_AA)
-    cv2.imshow('qrcode center', image)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 

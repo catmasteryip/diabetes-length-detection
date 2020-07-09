@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 from aruco import ArUco
 from warping import warping
-from segmentation import segmentation
+from segmentation import find_length
 
 cap = cv2.VideoCapture(0)
 aruco = ArUco()
@@ -14,19 +14,22 @@ while(True):
 
     rectangle, ids = aruco.detect(frame)
     cnt_img = frame
-    warped = None
-    patch = None
+    warped = black
+    patch = black
+    cnt_img = cv2.putText(frame.copy(), f'{ids}', (0, 25),
+                          cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
     if rectangle is not None:
-        cnt_img = cv2.drawContours(frame.copy(), rectangle, -1, (0, 255, 0), 3)
+        cnt_img = cv2.drawContours(cnt_img, rectangle, -1, (0, 255, 0), 3)
 
         warped = warping(frame, rectangle)
+        if warped is not None:
+            cnt, length = find_length(warped)
+            if cnt is not None:
+                patch = cv2.drawContours(
+                    warped.copy(), cnt, -1, (0, 255, 0), 2)
+                cv2.putText(patch, f'{length:.1f} px', (0, 25),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
 
-    if warped is not None:
-        cnt = segmentation(warped)
-        patch = cv2.drawContours(warped, cnt, -1, (0, 255, 0), 2)
-    else:
-        warped = black
-        patch = black
     cv2.imshow('aruco', cnt_img)
     cv2.imshow('warped', warped)
     cv2.imshow('patch', patch)

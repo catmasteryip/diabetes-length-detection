@@ -17,7 +17,7 @@ class ArUco():
         # Initialize the detector parameters using default values
         self.dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
         self.parameters = cv2.aruco.DetectorParameters_create()
-        self.order_corners = [1, 0, 3, 2]
+        # self.order_corners = [1, 0, 3, 2]
 
     def detect(self, img):
         '''
@@ -31,17 +31,18 @@ class ArUco():
         # Detect the markers in the image
         markerCorners, markerIds, rejectedCandidates = cv2.aruco.detectMarkers(
             img, self.dictionary, parameters=self.parameters)
+        # return None, markerIds
         rectangle = None
         if markerIds is not None:
-            if len(markerIds) == 4:
+            if len(markerIds) == 2:
                 markerIds = markerIds.flatten()
                 rectangle = np.full((1, 4, 2), 0)
                 for markerId, markerCorner in zip(markerIds, markerCorners):
                     corners = markerCorner.reshape(-1, 2)
-                    corners = corners.astype(np.int)
-                    corner_idx = self.order_corners[markerId-1]
-                    corner = corners[corner_idx]
-                    rectangle[0][markerId-1] = corner
+                    if markerId == 1:
+                        rectangle[0][0] = corners[3]
+                        rectangle[0][1] = corners[2]
+                    elif markerId == 2:
+                        rectangle[0][2] = corners[1]
+                        rectangle[0][3] = corners[0]
         return rectangle, markerIds
-
-# 1,0,2,1

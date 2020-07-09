@@ -32,3 +32,9 @@ def segmentation(bgr):
     max_area_cnt = area_cnts[0]
     return max_area_cnt
     # cnt_img = cv2.drawContours(bgr, area_cnts, 0, (0, 255, 0), 1)
+
+
+def find_length(bgr):
+    cnt = segmentation(bgr)
+    x, y, w, h = cv2.boundingRect(cnt)
+    return cnt, w

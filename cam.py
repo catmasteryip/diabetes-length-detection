@@ -16,6 +16,7 @@ while(True):
     cnt_img = frame
     warped = black
     patch = black
+    length = 0
     cnt_img = cv2.putText(frame.copy(), f'{ids}', (0, 25),
                           cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
     if rectangle is not None:
@@ -23,16 +24,29 @@ while(True):
 
         warped = warping(frame, rectangle)
         if warped is not None:
-            cnt, length = find_length(warped)
-            if cnt is not None:
-                patch = cv2.drawContours(
-                    warped.copy(), cnt, -1, (0, 255, 0), 2)
-                cv2.putText(patch, f'{length:.1f} px', (0, 25),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
 
-    cv2.imshow('aruco', cnt_img)
-    cv2.imshow('warped', warped)
-    cv2.imshow('patch', patch)
+            patch = find_length(warped)
+            rect, length = find_length(warped)
+
+            if rect is not None:
+                x, y, w, h = rect
+                start = (x, y)
+                end = (x+w, y+h)
+                patch = cv2.rectangle(
+                    warped.copy(), start, end, (0, 255, 0), 2)
+                cv2.putText(patch, f'{length:.0f}', (0, 25),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+    if patch.shape[0] < patch.shape[1]:
+        patch = np.rot90(patch)
+    aspect_ratio = 2/7
+    height = int(frame.shape[0])
+    width = int(aspect_ratio*height)
+    dim = (width, height)
+    patch = cv2.resize(patch, dim, interpolation=cv2.INTER_AREA)
+
+    cv2.imshow('rectangle', cnt_img)
+    cv2.imshow(f'patch', patch)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break

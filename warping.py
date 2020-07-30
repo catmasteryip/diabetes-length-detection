@@ -11,7 +11,6 @@ def order_points(pts):
         Returns:
             rect(ndarray):  sorted points of rectangle
     '''
-    # print(pts.shape)
     # initialzie a list of coordinates that will be ordered
     # such that the first entry in the list is the top-left,
     # the second entry is the top-right, the third is the
@@ -83,7 +82,9 @@ def warping(img, rect):
         Returns:
             warped_img(ndarray): BGR image of the warped rectangle only
     '''
+    # unpack rect
     rect = rect[0]
+    # check if rect is a rectangle
     if len(rect) == 4:
         warped_img = four_point_transform(img, rect)
         return warped_img

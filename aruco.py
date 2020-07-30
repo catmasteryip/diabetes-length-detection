@@ -17,11 +17,10 @@ class ArUco():
         # Initialize the detector parameters using default values
         self.dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
         self.parameters = cv2.aruco.DetectorParameters_create()
-        # self.order_corners = [1, 0, 3, 2]
 
     def detect(self, img):
         '''
-            Return the detection rectangle coordinates
+            Return the detection kit rectangle coordinates
             Args:
                 img(ndarray): BGR image
             Returns:

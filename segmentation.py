@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 
-def KMeansSeg(bgr, k):
+def OtsuSegmentation(bgr):
     '''
         Carry out k-means clustering segmentation on image
         Args:
@@ -14,23 +14,10 @@ def KMeansSeg(bgr, k):
     hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
     img = hsv[:, :, 1]
 
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-    img = clahe.apply(img)
+    blur = cv2.GaussianBlur(img,(5,5),0)
+    ret3,th3 = cv2.threshold(blur,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
-    if len(img.shape) > 2:
-        vectorized = img.reshape((-1, 3))
-    else:
-        vectorized = img.reshape((-1, 1))
-    vectorized = np.float32(vectorized)
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-    K = k
-    attempts = 10
-    ret, label, center = cv2.kmeans(
-        vectorized, K, None, criteria, attempts, cv2.KMEANS_PP_CENTERS)
-    center = np.uint8(center)
-    res = center[label.flatten()]
-    seg_img = res.reshape((img.shape))
-    return seg_img
+    return th3
 
 
 def find_contour(bgr):
@@ -41,7 +28,7 @@ def find_contour(bgr):
         Returns:
             max_area_cnt(List(ndarray)): Biggest contour detected
     '''
-    seg_img = KMeansSeg(bgr, 2)
+    seg_img = OtsuSegmentation(bgr)
     seg_img = cv2.Canny(seg_img, 50, 100)
     cnts, hier = cv2.findContours(seg_img, cv2.RETR_EXTERNAL,
                                   cv2.CHAIN_APPROX_SIMPLE)
@@ -68,5 +55,3 @@ def find_length(bgr):
         return (x, y, w, h), max(w, h)
     else:
         return None, None
-
-    # return KMeansSeg(bgr, 3)

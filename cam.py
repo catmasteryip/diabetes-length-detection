@@ -13,19 +13,19 @@ while(True):
     black = np.full(frame.shape, 0.)
 
     rectangle, ids = aruco.detect(frame)
-    cnt_img = frame
+    cnt_img = frame.copy()
     warped = black
     patch = black
     length = 0
-    cnt_img = cv2.putText(frame.copy(), f'{ids}', (0, 25),
-                          cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
+    # cnt_img = cv2.putText(frame.copy(), f'{ids}', (0, 25),
+    #                       cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1)
     if rectangle is not None:
         cnt_img = cv2.drawContours(cnt_img, rectangle, -1, (0, 255, 0), 3)
 
         warped = warping(frame, rectangle)
         if warped is not None:
 
-            patch = find_length(warped)
+            # patch = find_length(warped)
             rect, length = find_length(warped)
 
             if rect is not None:
@@ -35,7 +35,7 @@ while(True):
                 patch = cv2.rectangle(
                     warped.copy(), start, end, (0, 255, 0), 2)
                 cv2.putText(patch, f'{length:.0f}', (0, 25),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
 
     if patch.shape[0] < patch.shape[1]:
         patch = np.rot90(patch)
